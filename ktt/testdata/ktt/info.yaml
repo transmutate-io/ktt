@@ -1,0 +1,5 @@
+app:
+  name: sample-name
+  version: 0.1.0
+template:
+  version: 0.0.1

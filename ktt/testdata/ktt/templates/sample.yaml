@@ -1,0 +1,5 @@
+hello: world
+number: 42
+other:
+  some: thing
+  other: thing
