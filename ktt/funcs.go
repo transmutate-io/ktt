@@ -3,10 +3,12 @@ package ktt
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 	"text/template"
 
 	"github.com/BurntSushi/toml"
 	"github.com/Masterminds/sprig"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/yaml.v2"
 )
 
@@ -18,6 +20,7 @@ func FuncMap() template.FuncMap {
 		"fromYaml": fromYaml,
 		"toJson":   toJson,
 		"fromJson": fromJson,
+		"htpasswd": htpasswd,
 	}
 	for k, v := range extra {
 		r[k] = v
@@ -95,4 +98,14 @@ func fromJson(str string) map[string]interface{} { // nolint
 		m["Error"] = err.Error()
 	}
 	return m
+}
+
+const defaultCost = 10
+
+func htpasswd(username, password string) string {
+	pwd, err := bcrypt.GenerateFromPassword([]byte(password), defaultCost)
+	if err != nil {
+		panic(err)
+	}
+	return strings.Join([]string{username, string(pwd)}, ":")
 }
