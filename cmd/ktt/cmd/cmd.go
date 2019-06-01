@@ -135,7 +135,7 @@ func render(tpl *ktt.Template, name string) error {
 			fout = f
 		}
 		fmt.Fprintf(fout, "---\n# source: %s\n\n", filename)
-		err := t.Execute(fout, &templateData{
+		err := t.ExecuteTemplate(fout, filepath.Base(filename), &templateData{
 			Name:     name,
 			App:      tpl.Info.App,
 			Template: tpl.Info.Template,
