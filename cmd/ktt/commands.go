@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/transmutateio/ktt/cmd/ktt/cmd"
+	"transmutate.io/pkg/ktt/cmd/ktt/cmd"
 )
 
 var rootCmd = &cobra.Command{

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/transmutateio/ktt/ktt"
+	"transmutate.io/pkg/ktt/ktt"
 )
 
 var (

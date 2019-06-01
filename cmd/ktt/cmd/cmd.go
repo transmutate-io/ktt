@@ -11,7 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/transmutateio/ktt/ktt"
+	"transmutate.io/pkg/ktt/ktt"
 	"gopkg.in/yaml.v2"
 )
 

@@ -1,4 +1,4 @@
-module github.com/transmutateio/ktt
+module transmutate.io/pkg/ktt
 
 go 1.12
 

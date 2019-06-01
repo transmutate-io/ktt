@@ -1,6 +1,6 @@
 # The name of the executable (default is current directory name)
 TARGET_BIN := cmd/ktt/ktt
-BASE_PKG := github.com/transmutateio/ktt
+BASE_PKG := transmutate.io/pkg/ktt
 TARGET_PKG := $(BASE_PKG)/cmd/ktt
 
 
