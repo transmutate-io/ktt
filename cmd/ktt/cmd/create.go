@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"transmutate.io/pkg/ktt/ktt"
@@ -45,10 +48,36 @@ func createProject(cmd *cobra.Command, args []string) error {
 	if tplInfo.Template.Version == "" {
 		tplInfo.Template.Version = tplInfo.App.Version
 	}
-	files := map[string][]byte{
-		"info.yaml":   []byte(tplInfo.String()),
-		"values.yaml": []byte(valuesFileComment),
-		filepath.Join("templates", "helpers.tpl"): []byte(templateHelpers),
+	files := map[string][]byte{"info.yaml": []byte(tplInfo.String())}
+	var (
+		hasCustomValues    bool
+		hasCustomTemplates bool
+	)
+	cfgDir := configDirectory()
+	templatesDir := filepath.Join(cfgDir, "templates")
+	fi, err := os.Stat(templatesDir)
+	if err == nil {
+		if !fi.IsDir() {
+			return errors.New("invalid custom user templates directory")
+		}
+		hasCustomTemplates = true
+	} else {
+		if e, ok := err.(*os.PathError); !ok || e.Err != syscall.ENOENT {
+			return err
+		}
+		files[filepath.Join("templates", "helpers.tpl")] = []byte(templateHelpers)
+	}
+	valuesYamlFile := filepath.Join(cfgDir, "values.yaml")
+	if fi, err = os.Stat(valuesYamlFile); err == nil {
+		if fi.IsDir() {
+			return errors.New("invalid custom user values.yaml file")
+		}
+		hasCustomValues = true
+	} else {
+		if e, ok := err.(*os.PathError); !ok || e.Err != syscall.ENOENT {
+			return err
+		}
+		files["values.yaml"] = []byte(valuesFileComment)
 	}
 	for i, b := range files {
 		err := ioutil.WriteFile(filepath.Join(args[0], i), b, 0644)
@@ -56,7 +85,29 @@ func createProject(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
+	if !hasCustomTemplates && !hasCustomValues {
+		return nil
+	}
+	cpArgs := append(make([]string, 0, 5), "-r", "-f")
+	if hasCustomTemplates {
+		cpArgs = append(cpArgs, templatesDir)
+	}
+	if hasCustomValues {
+		cpArgs = append(cpArgs, valuesYamlFile)
+	}
+	cpArgs = append(cpArgs, args[0])
+	if err = exec.Command("cp", cpArgs...).Run(); err != nil {
+		return err
+	}
 	return nil
+}
+
+func configDirectory() string {
+	r := os.ExpandEnv("$XDG_CONFIG_HOME")
+	if r == "" {
+		r = filepath.Join(os.ExpandEnv("$HOME"), ".config")
+	}
+	return filepath.Join(r, "ktt")
 }
 
 const (
