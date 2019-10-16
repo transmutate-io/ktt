@@ -122,8 +122,7 @@ meta:
   # add extra common annotations
   annotations: {}
 `
-	templateHelpers = `# helpers
-{{- define "util.name" -}}
+	templateHelpers = `{{- define "util.name" -}}
 {{- default .Name .Values.meta.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
